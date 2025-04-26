@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input, button { margin: 5px; padding: 6px; }
+    </style>
+</head>
+<body>
+<h2>Register New User</h2>
+<input type="text" id="username" placeholder="Username"><br>
+<input type="email" id="email" placeholder="Email"><br>
+<input type="password" id="password" placeholder="Password"><br>
+<button onclick="register()">Register</button>
+
+<hr>
+
+<h2>All Users (Requires Auth)</h2>
+<input type="text" id="authUsername" placeholder="Auth Username"><br>
+<input type="password" id="authPassword" placeholder="Auth Password"><br>
+<button onclick="fetchUsers()">Load Users</button>
+
+<ul id="userList"></ul>
+
+<script>
+    function register() {
+        const user = {
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            role: "USER"
+        };
+
+        fetch("/api/users/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user)
+        })
+            .then(res => res.json())
+            .then(data => {
+                alert("User registered: " + data.username);
+            })
+            .catch(err => console.error(err));
+    }
+
+    function fetchUsers() {
+        const authUsername = document.getElementById("authUsername").value;
+        const authPassword = document.getElementById("authPassword").value;
+
+        fetch("/api/users", {
+            headers: {
+                "Authorization": "Basic " + btoa(authUsername + ":" + authPassword)
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Authentication failed or error occurred");
+                return res.json();
+            })
+            .then(users => {
+                const userList = document.getElementById("userList");
+                userList.innerHTML = "";
+                users.forEach(user => {
+                    const li = document.createElement("li");
+                    li.innerText = `${user.id} - ${user.username} (${user.email})`;
+                    userList.appendChild(li);
+                });
+            })
+            .catch(err => alert(err.message));
+    }
+</script>
+</body>
+</html>

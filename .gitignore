@@ -1,0 +1,66 @@
+# Java / Spring Boot
+/target/
+/out/
+/build/
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ / Eclipse / VS Code
+/.idea/
+/.project
+/.classpath
+/.settings/
+/.vscode/
+/*.iml
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+/*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.swp
+.Python
+env/
+venv/
+ENV/
+.venv/
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+
+# Other
+*.bak
+*.tmp
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Jupyter Notebook (if any)
+.ipynb_checkpoints
+
+# Model and training files (optional)
+*.h5
+*.pkl
+*.ckpt
+*.onnx
+
+
+# Ignore venv
+gfgm-ai/venv/
+# Ignore model files
+gfgm-ai/*.h5
+gfgm-ai/*.pkl
+gfgm-ai/recipes.json
+gfgm-ai/training_data.json
