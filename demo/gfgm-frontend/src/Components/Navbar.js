@@ -13,7 +13,66 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
+      // Updated navbar.js
+      <nav className="navbar">
+          <div className="navbar-container">
+              <div className="navbar-brand">
+                  <Link to="/" className="navbar-logo">
+                      <span className="logo-icon">🍏</span>
+                      <span>Gym Guy's Food</span>
+                  </Link>
+              </div>
+
+              <div className="navbar-links">
+                  <Link to="/recipes" className="navbar-link">
+                      <i className="fas fa-utensils"></i>
+                      <span>Recipes</span>
+                  </Link>
+
+                  {user ? (
+                      <>
+                          <Link to="/my-recipes" className="navbar-link">
+                              <i className="fas fa-book"></i>
+                              <span>My Recipes</span>
+                          </Link>
+                          <Link to="/recipes/add" className="navbar-link highlight">
+                              <i className="fas fa-plus"></i>
+                              <span>Add Recipe</span>
+                          </Link>
+
+                          <div className="user-dropdown">
+                              <button className="user-toggle">
+                                  <span className="user-avatar">{user.username.charAt(0).toUpperCase()}</span>
+                                  <span className="username">{user.username}</span>
+                                  <i className="fas fa-chevron-down"></i>
+                              </button>
+                              <div className="dropdown-menu">
+                                  <button onClick={handleLogout} className="dropdown-item">
+                                      <i className="fas fa-sign-out-alt"></i> Logout
+                                  </button>
+                              </div>
+                          </div>
+                      </>
+                  ) : (
+                      <div className="auth-links">
+                          <Link to="/login" className="navbar-link">
+                              <i className="fas fa-sign-in-alt"></i>
+                              <span>Login</span>
+                          </Link>
+                          <Link to="/register" className="navbar-link highlight">
+                              <i className="fas fa-user-plus"></i>
+                              <span>Register</span>
+                          </Link>
+                      </div>
+                  )}
+              </div>
+
+              <button className="navbar-toggle">
+                  <i className="fas fa-bars"></i>
+              </button>
+          </div>
+      </nav>
+    /*<nav className="navbar">
       <div className="navbar-brand">
         <Link to="/" className="navbar-logo">
           Gym Guy's Food
@@ -49,7 +108,7 @@ const Navbar = () => {
           </div>
         )}
       </div>
-    </nav>
+    </nav>*/
   );
 };
 
