@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { recipeService } from '../services/recipeService';
 import RecipeForm from '../Components/RecipeForm';
@@ -7,6 +7,13 @@ import '../Components/RecipeForm.css';
 const AddRecipe = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const storedAuth = localStorage.getItem('auth');
+    if(!storedAuth){
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleSubmit = async (formData, image) => {
     try {

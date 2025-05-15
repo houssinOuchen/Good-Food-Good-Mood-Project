@@ -12,6 +12,13 @@ const EditRecipe = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const storedAuth = localStorage.getItem('auth');
+    if(!storedAuth){
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     fetchRecipe();
   }, [id]);
 

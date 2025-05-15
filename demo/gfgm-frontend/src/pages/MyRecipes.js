@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { recipeService } from '../services/recipeService';
 import './MyRecipes.css';
 
@@ -9,10 +9,18 @@ const MyRecipes = () => {
   const [error, setError] = useState('');
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const navigate =useNavigate();
 
   useEffect(() => {
     fetchRecipes();
   }, [page]);
+
+  useEffect(() => {
+    const storedAuth = localStorage.getItem('auth');
+    if(!storedAuth){
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const fetchRecipes = async () => {
     try {
