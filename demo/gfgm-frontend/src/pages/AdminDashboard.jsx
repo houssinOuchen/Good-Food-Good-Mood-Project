@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, updateUser } = useAuth();
   const navigate = useNavigate();
   const [editingUser, setEditingUser] = useState(null);
   const [editingRecipe, setEditingRecipe] = useState(null);
@@ -68,34 +68,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUserAction = async (userId, action) => {
-    try {
-      if (action === 'delete') {
-        await axios.delete(`/api/admin/users/${userId}`);
-      } else if (action === 'role') {
-        await axios.put(`/api/admin/users/${userId}/role`, { role: 'ADMIN' });
-      }
-      fetchData(); // Refresh data
-    } catch (error) {
-      setError(`Failed to ${action} user`);
-    }
-  };
-
-  const handleRecipeAction = async (recipeId, action) => {
-    try {
-      if (action === 'delete') {
-        await axios.delete(`/api/admin/recipes/${recipeId}`);
-      } else if (action === 'publish' || action === 'unpublish') {
-        await axios.put(`/api/admin/recipes/${recipeId}/status`, {
-          published: action === 'publish'
-        });
-      }
-      fetchData(); // Refresh data
-    } catch (error) {
-      setError(`Failed to ${action} recipe`);
-    }
-  };
-
   const handleUserEdit = (user) => {
     setEditingUser({
       ...user,
@@ -108,14 +80,6 @@ const AdminDashboard = () => {
   const handleUserUpdate = async (e) => {
     e.preventDefault();
     try {
-      // First update the role if it changed
-      if (editingUser.role) {
-        await axios.put(`/api/admin/users/${editingUser.id}/role`, null, {
-          params: { role: editingUser.role }
-        });
-      }
-
-      // Then update the profile with all fields
       const userData = {
         username: editingUser.username,
         email: editingUser.email,
@@ -125,12 +89,39 @@ const AdminDashboard = () => {
       };
 
       // Only include password if it's not empty
-      if (editingUser.password) {
+      if (editingUser.password && editingUser.password.trim()) {
         userData.password = editingUser.password;
       }
 
-      await axios.put(`/api/users/profile`, userData);
-      setMessage({ type: 'success', text: 'User updated successfully!' });
+      const response = await axios.put(`/api/admin/users/${editingUser.id}`, userData);
+
+      // Check if admin updated their own account and got a new token
+      if (response.data.token) {
+        // Update the stored token
+        localStorage.setItem('token', response.data.token);
+        // Update axios default header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
+        // Update the user context if you have access to it
+        // You might need to call a function to refresh the user context
+        // or trigger a re-fetch of user data
+
+        setMessage({
+          type: 'success',
+          text: 'User updated successfully! Your session has been refreshed.'
+        });
+      } else {
+        setMessage({ type: 'success', text: 'User updated successfully!' });
+      }
+
+      if (response.data.token) {
+        updateUser(response.data);
+        setMessage({
+          type: 'success',
+          text: 'User updated successfully! Your session has been refreshed.'
+        });
+      }
+
       setEditingUser(null);
       fetchData();
     } catch (error) {
@@ -224,7 +215,7 @@ const AdminDashboard = () => {
         sugar: parseFloat(editingRecipe.sugar) || 0
       };
 
-      await axios.put(`/api/recipes/${editingRecipe.id}`, recipeData);
+      await axios.put(`/api/admin/recipes/${editingRecipe.id}`, recipeData);
       
       setMessage({ type: 'success', text: 'Recipe updated successfully!' });
       setEditingRecipe(null);
@@ -503,7 +494,7 @@ const AdminDashboard = () => {
                                     src={
                                       user.profilePicture
                                           ? `/api/uploads/${user.profilePicture}`
-                                          : "/placeholder.svg?height=48&width=48"
+                                          : "/images/default-avatar.png?height=48&width=48"
                                     }
                                     alt=""
                                 />

@@ -1,7 +1,6 @@
 package com.gfgm.controller;
 
-import com.gfgm.dto.RecipeDTO;
-import com.gfgm.dto.UserSummaryDTO;
+import com.gfgm.dto.*;
 import com.gfgm.model.Role;
 import com.gfgm.model.User;
 import com.gfgm.service.RecipeService;
@@ -47,6 +46,22 @@ public class AdminController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(recipeService.getAllRecipes(PageRequest.of(page, size)));
+    }
+
+    // Updated: Admin user update endpoint with token refresh support
+    @PutMapping("/users/{userId}")
+    public ResponseEntity<AdminUserUpdateResponse> updateUser(
+            @PathVariable Long userId,
+            @RequestBody AdminUserUpdateRequest request) {
+        return ResponseEntity.ok(userService.adminUpdateUser(userId, request));
+    }
+
+    // NEW: Admin recipe update endpoint
+    @PutMapping("/recipes/{recipeId}")
+    public ResponseEntity<RecipeDTO> updateRecipe(
+            @PathVariable Long recipeId,
+            @RequestBody AdminRecipeUpdateRequest request) {
+        return ResponseEntity.ok(recipeService.adminUpdateRecipe(recipeId, request));
     }
 
     @PutMapping("/users/{userId}/role")

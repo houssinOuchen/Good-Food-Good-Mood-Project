@@ -1,10 +1,6 @@
 package com.gfgm.service;
 
-import com.gfgm.dto.RegisterRequest;
-import com.gfgm.dto.UserPasswordUpdateRequest;
-import com.gfgm.dto.UserSummaryDTO;
-import com.gfgm.dto.UserUpdateRequest;
-import com.gfgm.dto.UserUpdateResponse;
+import com.gfgm.dto.*;
 import com.gfgm.model.Role;
 import com.gfgm.model.User;
 import com.gfgm.repository.UserRepository;
@@ -136,6 +132,66 @@ public class UserService {
                 .bio(savedUser.getBio())
                 .role(savedUser.getRole())
                 .token(token)
+                .build();
+    }
+
+    public AdminUserUpdateResponse adminUpdateUser(Long userId, AdminUserUpdateRequest request) {
+        User currentAdmin = authService.getCurrentUser();
+        User userToUpdate = getUserById(userId);
+
+        boolean isSelfUpdate = userToUpdate.getId().equals(currentAdmin.getId());
+        boolean usernameChanged = false;
+
+        // Check for username conflicts (excluding the user being updated)
+        if (request.getUsername() != null && !request.getUsername().equals(userToUpdate.getUsername())) {
+            if (userRepository.existsByUsername(request.getUsername())) {
+                throw new IllegalArgumentException("Username is already taken");
+            }
+            userToUpdate.setUsername(request.getUsername());
+            usernameChanged = true;
+        }
+
+        // Check for email conflicts (excluding the user being updated)
+        if (request.getEmail() != null && !request.getEmail().equals(userToUpdate.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new IllegalArgumentException("Email is already registered");
+            }
+            userToUpdate.setEmail(request.getEmail());
+        }
+
+        if (request.getFirstName() != null) {
+            userToUpdate.setFirstName(request.getFirstName());
+        }
+        if (request.getLastName() != null) {
+            userToUpdate.setLastName(request.getLastName());
+        }
+        if (request.getRole() != null) {
+            userToUpdate.setRole(request.getRole());
+        }
+
+        // Only update password if provided
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            userToUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        User savedUser = userRepository.save(userToUpdate);
+
+        // Generate new token if admin updated their own username
+        String newToken = null;
+        if (isSelfUpdate && usernameChanged) {
+            newToken = authService.generateToken(savedUser);
+        }
+
+        return AdminUserUpdateResponse.builder()
+                .id(savedUser.getId())
+                .username(savedUser.getUsername())
+                .email(savedUser.getEmail())
+                .firstName(savedUser.getFirstName())
+                .lastName(savedUser.getLastName())
+                .profilePicture(savedUser.getProfilePicture())
+                .role(savedUser.getRole())
+                .token(newToken)
+                .selfUpdate(isSelfUpdate)
                 .build();
     }
 

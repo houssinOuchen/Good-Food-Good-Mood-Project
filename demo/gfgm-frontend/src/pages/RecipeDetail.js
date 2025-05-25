@@ -1,46 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { recipeService } from '../services/recipeService';
-import { useAuth } from '../context/AuthContext';
+"use client"
+
+import { useState, useEffect } from "react"
+import { useParams, useNavigate, Link } from "react-router-dom"
+import { recipeService } from "../services/recipeService"
+import { useAuth } from "../context/AuthContext"
+import DeleteConfirmModal from "../Components/DeleteConfirmModal"
 
 const RecipeDetail = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [recipe, setRecipe] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [recipe, setRecipe] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
-    fetchRecipe();
-  }, [id]);
+    fetchRecipe()
+  }, [id])
 
   const fetchRecipe = async () => {
     try {
-      setLoading(true);
-      const data = await recipeService.getRecipeById(id);
-      setRecipe(data);
+      setLoading(true)
+      const data = await recipeService.getRecipeById(id)
+      setRecipe(data)
     } catch (err) {
-      setError('Failed to fetch recipe');
-      console.error(err);
+      setError("Failed to fetch recipe")
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this recipe?')) {
-      return;
-    }
+  const handleDeleteConfirm = () => {
+    setShowDeleteConfirm(true)
+  }
 
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false)
+  }
+
+  const handleDeleteExecute = async () => {
     try {
-      await recipeService.deleteRecipe(id);
-      navigate('/my-recipes');
+      await recipeService.deleteRecipe(id)
+      navigate("/my-recipes")
     } catch (err) {
-      setError('Failed to delete recipe');
-      console.error(err);
+      setError("Failed to delete recipe")
+      console.error(err)
+      setShowDeleteConfirm(false)
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -53,7 +62,7 @@ const RecipeDetail = () => {
             <p className="text-gray-600">Preparing something delicious for you...</p>
           </div>
         </div>
-    );
+    )
   }
 
   if (error) {
@@ -76,7 +85,7 @@ const RecipeDetail = () => {
             </div>
           </div>
         </div>
-    );
+    )
   }
 
   if (!recipe) {
@@ -101,11 +110,11 @@ const RecipeDetail = () => {
             </div>
           </div>
         </div>
-    );
+    )
   }
 
-  const isOwner = user && recipe.author && user.id === recipe.author.id;
-  const authorName = recipe.author?.username || 'Unknown User';
+  const isOwner = user && recipe.author && user.id === recipe.author.id
+  const authorName = recipe.author?.username || "Unknown User"
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -123,8 +132,7 @@ const RecipeDetail = () => {
                           className="w-full h-96 object-cover"
                       />
                   ) : (
-                      <div
-                          className="w-full h-96 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <div className="w-full h-96 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                         <i className="fas fa-utensils text-6xl text-gray-400"></i>
                       </div>
                   )}
@@ -135,19 +143,16 @@ const RecipeDetail = () => {
               <div className="flex flex-col justify-between">
                 <div>
                   <div className="flex flex-wrap gap-3 mb-6">
-                  <span
-                      className="inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-semibold">
+                  <span className="inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-semibold">
                     {recipe.category || "General"}
                   </span>
                     {recipe.isVegetarian && (
-                        <span
-                            className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                        <span className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
                       🌱 Vegetarian
                     </span>
                     )}
                     {recipe.isVegan && (
-                        <span
-                            className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                        <span className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
                       🌿 Vegan
                     </span>
                     )}
@@ -170,7 +175,7 @@ const RecipeDetail = () => {
                           Edit Recipe
                         </Link>
                         <button
-                            onClick={handleDelete}
+                            onClick={handleDeleteConfirm}
                             className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium shadow-md hover:shadow-lg transition-all duration-200"
                         >
                           <i className="fas fa-trash mr-2"></i>
@@ -273,12 +278,10 @@ const RecipeDetail = () => {
                     <div className="space-y-8">
                       {recipe.instructions.split("\n").map((step, index) => (
                           <div key={index} className="flex group">
-                            <div
-                                className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                            <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
                               {index + 1}
                             </div>
-                            <div
-                                className="ml-6 text-gray-700 text-lg leading-relaxed group-hover:text-gray-900 transition-colors duration-200">
+                            <div className="ml-6 text-gray-700 text-lg leading-relaxed group-hover:text-gray-900 transition-colors duration-200">
                               {step}
                             </div>
                           </div>
@@ -297,8 +300,7 @@ const RecipeDetail = () => {
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-6">Recipe Creator</h3>
               <div className="flex items-center">
-                <div
-                    className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                   {authorName.charAt(0).toUpperCase()}
                 </div>
                 <div className="ml-6">
@@ -347,8 +349,18 @@ const RecipeDetail = () => {
             </div>
           </div>
         </div>
-      </div>
-  );
-};
 
-export default RecipeDetail;
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmModal
+            show={showDeleteConfirm}
+            onConfirm={handleDeleteExecute}
+            onCancel={handleDeleteCancel}
+            title="Delete Recipe"
+            message={`Are you sure you want to delete "${recipe?.title}"? This action cannot be undone and the recipe will be permanently removed from your collection.`}
+            itemType="recipe"
+        />
+      </div>
+  )
+}
+
+export default RecipeDetail

@@ -3,9 +3,11 @@ package com.gfgm.service;
 import com.gfgm.dto.IngredientRequest;
 import com.gfgm.dto.RecipeRequest;
 import com.gfgm.dto.RecipeDTO;
+import com.gfgm.dto.AdminRecipeUpdateRequest;
 import com.gfgm.mapper.RecipeMapper;
 import com.gfgm.model.Ingredient;
 import com.gfgm.model.Recipe;
+import com.gfgm.model.RecipeCategory;
 import com.gfgm.model.User;
 import com.gfgm.repository.IngredientRepository;
 import com.gfgm.repository.RecipeRepository;
@@ -59,6 +61,66 @@ public class RecipeService {
     private Recipe getRecipeEntityById(Long id) {
         return recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
+    }
+
+    // NEW: Admin recipe update method
+    @Transactional
+    public RecipeDTO adminUpdateRecipe(Long id, AdminRecipeUpdateRequest request) {
+        Recipe recipe = getRecipeEntityById(id);
+
+        if (request.getTitle() != null) {
+            recipe.setTitle(request.getTitle());
+        }
+        if (request.getDescription() != null) {
+            recipe.setDescription(request.getDescription());
+        }
+        if (request.getCategory() != null) {
+            recipe.setCategory(RecipeCategory.valueOf(request.getCategory()));
+        }
+        if (request.getPublished() != null) {
+            recipe.setPublished(request.getPublished());
+        }
+        if (request.getInstructions() != null) {
+            recipe.setInstructions(request.getInstructions().toString());
+        }
+        if (request.getPrepTime() != null) {
+            recipe.setPrepTime(request.getPrepTime());
+        }
+        if (request.getCookTime() != null) {
+            recipe.setCookTime(request.getCookTime());
+        }
+        if (request.getServings() != null) {
+            recipe.setServings(request.getServings());
+        }
+
+        // Update nutrition information
+        if (request.getCalories() != null) {
+            recipe.setCalories(request.getCalories());
+        }
+        if (request.getProtein() != null) {
+            recipe.setProtein(request.getProtein());
+        }
+        if (request.getCarbs() != null) {
+            recipe.setCarbs(request.getCarbs());
+        }
+        if (request.getFat() != null) {
+            recipe.setFat(request.getFat());
+        }
+        if (request.getFiber() != null) {
+            recipe.setFiber(request.getFiber());
+        }
+        if (request.getSugar() != null) {
+            recipe.setSugar(request.getSugar());
+        }
+
+        // Update ingredients if provided
+        if (request.getIngredients() != null) {
+            ingredientRepository.deleteAllByRecipe(recipe);
+            saveIngredients(recipe, request.getIngredients());
+        }
+
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        return recipeMapper.toDTO(savedRecipe);
     }
 
     public Page<RecipeDTO> searchRecipes(String query, Pageable pageable) {

@@ -1,57 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { recipeService } from '../services/recipeService';
+"use client"
+
+import { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { recipeService } from "../services/recipeService"
+import DeleteConfirmModal from "../Components/DeleteConfirmModal"
 
 const MyRecipes = () => {
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const navigate = useNavigate();
+  const [recipes, setRecipes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({ show: false, recipeId: null, recipeTitle: "" })
+  const navigate = useNavigate()
 
   useEffect(() => {
-    fetchRecipes();
-  }, [page]);
+    fetchRecipes()
+  }, [page])
 
   useEffect(() => {
-    const storedAuth = localStorage.getItem('user');
+    const storedAuth = localStorage.getItem("user")
     if (!storedAuth) {
-      navigate("/login");
+      navigate("/login")
     }
-  }, [navigate]);
+  }, [navigate])
 
   const fetchRecipes = async () => {
     try {
-      setLoading(true);
-      const response = await recipeService.getUserRecipes(page);
-      setRecipes(prev => page === 0 ? response.content : [...prev, ...response.content]);
-      setHasMore(!response.last);
+      setLoading(true)
+      const response = await recipeService.getUserRecipes(page)
+      setRecipes((prev) => (page === 0 ? response.content : [...prev, ...response.content]))
+      setHasMore(!response.last)
     } catch (err) {
-      setError('Failed to fetch your recipes');
-      console.error(err);
+      setError("Failed to fetch your recipes")
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this recipe?')) {
-      return;
-    }
+  const handleDeleteConfirm = (recipeId, recipeTitle) => {
+    setShowDeleteConfirm({ show: true, recipeId, recipeTitle })
+  }
 
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm({ show: false, recipeId: null, recipeTitle: "" })
+  }
+
+  const handleDeleteExecute = async () => {
     try {
-      await recipeService.deleteRecipe(id);
-      setRecipes(prev => prev.filter(recipe => recipe.id !== id));
+      await recipeService.deleteRecipe(showDeleteConfirm.recipeId)
+      setRecipes((prev) => prev.filter((recipe) => recipe.id !== showDeleteConfirm.recipeId))
+      setShowDeleteConfirm({ show: false, recipeId: null, recipeTitle: "" })
     } catch (err) {
-      setError('Failed to delete recipe');
-      console.error(err);
+      setError("Failed to delete recipe")
+      console.error(err)
+      setShowDeleteConfirm({ show: false, recipeId: null, recipeTitle: "" })
     }
-  };
+  }
 
   const loadMore = () => {
-    setPage(prev => prev + 1);
-  };
+    setPage((prev) => prev + 1)
+  }
 
   return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
@@ -166,14 +176,12 @@ const MyRecipes = () => {
                               className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                       ) : (
-                          <div
-                              className="w-full h-56 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+                          <div className="w-full h-56 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                             <i className="fas fa-utensils text-5xl text-slate-400"></i>
                           </div>
                       )}
                       <div className="absolute top-4 right-4">
-                    <span
-                        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-lg">
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-lg">
                       {recipe.category || "General"}
                     </span>
                       </div>
@@ -187,8 +195,7 @@ const MyRecipes = () => {
                         {recipe.description || "No description available"}
                       </p>
 
-                      <div
-                          className="flex justify-between items-center text-sm text-slate-500 mb-6 pb-4 border-b border-slate-100">
+                      <div className="flex justify-between items-center text-sm text-slate-500 mb-6 pb-4 border-b border-slate-100">
                         <div className="flex items-center space-x-1">
                           <i className="fas fa-clock text-emerald-600"></i>
                           <span className="font-medium">{recipe.prepTime + recipe.cookTime || 0} min</span>
@@ -241,7 +248,7 @@ const MyRecipes = () => {
                       Edit
                     </Link>
                     <button
-                        onClick={() => handleDelete(recipe.id)}
+                        onClick={() => handleDeleteConfirm(recipe.id, recipe.title)}
                         className="inline-flex items-center px-4 py-2 text-sm font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-xl transition-all duration-200 hover:shadow-md"
                     >
                       <i className="fas fa-trash mr-2"></i>
@@ -256,10 +263,8 @@ const MyRecipes = () => {
           {loading && (
               <div className="flex justify-center items-center py-16">
                 <div className="text-center">
-                  <div
-                      className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-6">
-                    <div
-                        className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-600 border-t-transparent"></div>
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-6">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-600 border-t-transparent"></div>
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900 mb-2">Loading Your Recipes</h3>
                   <p className="text-slate-600">Gathering your culinary creations...</p>
@@ -305,8 +310,18 @@ const MyRecipes = () => {
               </div>
           )}
         </div>
-      </div>
-  );
-};
 
-export default MyRecipes; 
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmModal
+            show={showDeleteConfirm.show}
+            onConfirm={handleDeleteExecute}
+            onCancel={handleDeleteCancel}
+            title="Delete Recipe"
+            message={`Are you sure you want to delete "${showDeleteConfirm.recipeTitle}"? This action cannot be undone and the recipe will be permanently removed from your collection.`}
+            itemType="recipe"
+        />
+      </div>
+  )
+}
+
+export default MyRecipes
