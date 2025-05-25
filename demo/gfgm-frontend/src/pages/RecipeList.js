@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { recipeService } from '../services/recipeService';
-import './RecipeList.css';
-import {useAuth} from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const RecipeList = () => {
   const [recipes, setRecipes] = useState([]);
@@ -21,41 +20,12 @@ const RecipeList = () => {
     try {
       setLoading(true);
       const response = await (searchQuery
-          ? recipeService.searchRecipes(searchQuery, page)
-          : recipeService.getAllRecipes(page));
+        ? recipeService.searchRecipes(searchQuery, page)
+        : recipeService.getAllRecipes(page));
 
-      // Debug log the response type and structure
-      console.log("API response:", response);
-
-      // Extract recipe data from the paginated response
-      let recipeData = [];
-
-      if (response && response.content && Array.isArray(response.content)) {
-        // Standard Spring Data pagination format
-        recipeData = response.content;
-        setHasMore(!response.last);
-      } else if (Array.isArray(response)) {
-        // Direct array response
-        recipeData = response;
-        setHasMore(response.length > 0);
-      } else if (response && typeof response === 'object') {
-        // Single recipe object
-        recipeData = [response];
-        setHasMore(false);
-      }
-
-      console.log("Processed recipe data:", recipeData);
-
-      // Update the recipes state with the new data
-      setRecipes(prev => {
-        // If it's the first page, replace current recipes
-        if (page === 0) return recipeData;
-
-        // Otherwise, append to existing recipes
-        // Make sure we have an array to spread
-        const prevArray = Array.isArray(prev) ? prev : [];
-        return [...prevArray, ...recipeData];
-      });
+      const recipeData = response.content || [];
+      setRecipes(prev => page === 0 ? recipeData : [...prev, ...recipeData]);
+      setHasMore(!response.last);
     } catch (err) {
       setError('Failed to fetch recipes');
       console.error(err);
@@ -87,209 +57,394 @@ const RecipeList = () => {
   const loadMore = () => {
     setPage(prev => prev + 1);
   };
-
-  console.log("Rendering with recipes:", recipes);
-  console.log("Is recipes an array?", Array.isArray(recipes));
-
   return (
-      <div className="recipes-container">
-        <div className="recipes-header">
-          <div className="header-content">
-            <h1>Discover Recipes</h1>
-            <p>Find healthy meals to fuel your fitness journey</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Header Section */}
+          <div className="text-center mb-16">
+            <div
+                className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl mb-6 shadow-lg">
+              <i className="fas fa-utensils text-2xl text-white"></i>
+            </div>
+            <h1 className="text-5xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              Discover Recipes
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Find healthy meals to fuel your fitness journey and achieve your goals
+            </p>
           </div>
 
-          <div className="search-container">
-            <form onSubmit={handleSearch} className="search-form">
-              <div className="search-input-container">
-                <i className="fas fa-search"></i>
+          {/* Search Section */}
+          <div className="mb-12">
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <i className="fas fa-search text-gray-400 text-lg"></i>
+                </div>
                 <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search recipes..."
-                    className="search-input"
+                    placeholder="Search for recipes, ingredients, or nutrition goals..."
+                    className="block w-full pl-12 pr-32 py-4 text-lg border border-gray-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white shadow-sm placeholder-gray-400 transition-all duration-200"
                 />
-                <button type="submit" className="search-button">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+                  <button
+                      type="submit"
+                      className="px-8 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              {["All", "Breakfast", "Lunch", "Dinner", "Snacks"].map((filter) => (
+                  <button
+                      key={filter}
+                      className={`px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200 ${
+                          filter === "All"
+                              ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-md hover:shadow-lg"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 shadow-sm"
+                      }`}
+                  >
+                    {filter}
+                  </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+              <div className="max-w-2xl mx-auto mb-8">
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                  <div className="flex items-center text-red-700">
+                    <div className="flex-shrink-0">
+                      <i className="fas fa-exclamation-circle text-lg"></i>
+                    </div>
+                    <div className="ml-3">
+                      <p className="font-medium">{error}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          )}
+
+          {/* Recipe Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.isArray(recipes) && recipes.length > 0 ? (
+                recipes.map((recipe, index) => (
+                    <div
+                        key={recipe?.id || index}
+                        className="group bg-white rounded-2xl shadow-sm hover:shadow-xl overflow-hidden transition-all duration-300 border border-gray-100"
+                    >
+                      <div className="relative overflow-hidden">
+                        {recipe?.imageUrl ? (
+                            <img
+                                src={`/api/uploads/${recipe.imageUrl}`}
+                                alt={recipe?.title || "Recipe"}
+                                className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                        ) : (
+                            <div
+                                className="w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              <i className="fas fa-utensils text-5xl text-gray-400"></i>
+                            </div>
+                        )}
+
+                        <div className="absolute top-4 right-4">
+                    <span
+                        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-lg">
+                      {recipe?.category || "General"}
+                    </span>
+                        </div>
+
+                        {user && recipe?.author && (user.id === recipe.author.id || user.role === "ADMIN") && (
+                            <div
+                                className="absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <Link
+                                  to={`/recipes/edit/${recipe.id}`}
+                                  className="inline-flex items-center justify-center w-10 h-10 bg-white/95 backdrop-blur-sm text-emerald-600 rounded-full hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                                  title="Edit Recipe"
+                              >
+                                <i className="fas fa-edit text-sm"></i>
+                              </Link>
+                              <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    handleDelete(recipe.id)
+                                  }}
+                                  className="inline-flex items-center justify-center w-10 h-10 bg-white/95 backdrop-blur-sm text-red-600 rounded-full hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                  title="Delete Recipe"
+                              >
+                                <i className="fas fa-trash text-sm"></i>
+                              </button>
+                            </div>
+                        )}
+                      </div>
+
+                      <Link to={`/recipes/${recipe?.id || index}`} className="block">
+                        <div className="p-6">
+                          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors duration-200 line-clamp-2">
+                            {recipe?.title || "Untitled Recipe"}
+                          </h3>
+                          <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed">
+                            {recipe?.description || "No description available"}
+                          </p>
+
+                          <div
+                              className="flex justify-between items-center text-sm text-gray-500 mb-6 pb-4 border-b border-gray-100">
+                            <div className="flex items-center space-x-1">
+                              <i className="fas fa-clock text-emerald-600"></i>
+                              <span className="font-medium">{recipe?.prepTime + recipe?.cookTime || 0} min</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <i className="fas fa-user-friends text-blue-600"></i>
+                              <span className="font-medium">{recipe?.servings || 0} servings</span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <i className="fas fa-fire-alt text-orange-500"></i>
+                                <span className="text-xs font-medium text-gray-600">Calories</span>
+                              </div>
+                              <span className="font-bold text-orange-600">{recipe.calories || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <i className="fas fa-drumstick-bite text-red-500"></i>
+                                <span className="text-xs font-medium text-gray-600">Protein</span>
+                              </div>
+                              <span className="font-bold text-red-600">{recipe.protein || 0}g</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <i className="fas fa-bread-slice text-yellow-500"></i>
+                                <span className="text-xs font-medium text-gray-600">Carbs</span>
+                              </div>
+                              <span className="font-bold text-yellow-600">{recipe.carbs || 0}g</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <i className="fas fa-cheese text-amber-500"></i>
+                                <span className="text-xs font-medium text-gray-600">Fat</span>
+                              </div>
+                              <span className="font-bold text-amber-600">{recipe.fat || 0}g</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                ))
+            ) : (
+                <div className="col-span-full text-center py-20">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
+                    <i className="fas fa-utensils text-3xl text-gray-400"></i>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No recipes found</h3>
+                  <p className="text-gray-500">Try adjusting your search or filters to find what you're looking for.</p>
+                </div>
+            )}
+          </div>
+
+          {/* Load More Button */}
+          {hasMore && !loading && (
+              <div className="text-center mt-12">
+                <button
+                    onClick={loadMore}
+                    className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  Load More Recipes
+                </button>
+              </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-full">
+                  <div
+                      className="animate-spin rounded-full h-6 w-6 border-2 border-emerald-600 border-t-transparent"></div>
+                </div>
+                <p className="mt-4 text-gray-600 font-medium">Loading delicious recipes...</p>
+              </div>
+          )}
+        </div>
+      </div>
+      /*<div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Discover Recipes</h1>
+            <p className="text-lg text-gray-600">Find healthy meals to fuel your fitness journey</p>
+          </div>
+
+          <div className="mb-8">
+            <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+              <div className="flex gap-4">
+                <div className="relative flex-grow">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i className="fas fa-search text-gray-400"></i>
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search recipes..."
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
                   Search
                 </button>
               </div>
             </form>
 
-            <div className="filter-buttons">
-              <button className="filter-button active">All</button>
-              <button className="filter-button">Breakfast</button>
-              <button className="filter-button">Lunch</button>
-              <button className="filter-button">Dinner</button>
-              <button className="filter-button">Snacks</button>
+            <div className="flex justify-center gap-4 mt-6">
+              {['All', 'Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((filter) => (
+                <button
+                  key={filter}
+                  className={`px-4 py-2 rounded-full text-sm font-medium ${
+                    filter === 'All'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
           </div>
-        </div>
 
-        {error && (
-            <div className="error-message">
-              <i className="fas fa-exclamation-circle"></i>
-              {error}
+          {error && (
+            <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-50 rounded-lg">
+              <div className="flex items-center text-red-700">
+                <i className="fas fa-exclamation-circle mr-2"></i>
+                <p>{error}</p>
+              </div>
             </div>
-        )}
-
-        <div className="recipes-grid">
-          {Array.isArray(recipes) && recipes.length > 0 ? (
-              recipes.map((recipe, index) => (
-                  <div key={recipe?.id || index} className="recipe-card">
-                    <Link to={`/recipes/${recipe?.id || index}`} className="card-link">
-                      <div className="card-image">
-                        {recipe?.imageUrl ? (
-                            <img
-                                src={`/api/uploads/${recipe.imageUrl}`}
-                                alt={recipe?.title || 'Recipe'}
-                            />
-                        ) : (
-                            <div className="placeholder-image">
-                              <i className="fas fa-utensils"></i>
-                            </div>
-                        )}
-                        <div className="card-badge">{recipe?.category || 'General'}</div>
-                      </div>
-
-                      <div className="card-content">
-                        <h3>{recipe?.title || 'Untitled Recipe'}</h3>
-                        <p className="card-description">
-                          {recipe?.description || 'No description available'}
-                        </p>
-
-                        <div className="card-meta">
-                          <div className="meta-item">
-                            <i className="fas fa-clock"></i>
-                            <span>{recipe?.prepTime + recipe?.cookTime || 0} min</span>
-                          </div>
-                          <div className="meta-item">
-                            <i className="fas fa-user-friends"></i>
-                            <span>{recipe?.servings || 0} servings</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-
-                    {user?.id === recipe?.author.id && (
-                        <div className="card-actions">
-                          <Link
-                              to={`/recipes/edit/${recipe.id}`}
-                              className="action-button edit"
-                          >
-                            <i className="fas fa-edit"></i>
-                          </Link>
-                          <button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleDelete(recipe.id);
-                              }}
-                              className="action-button delete"
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                    )}
-                  </div>
-              ))
-          ) : (
-              !loading && (
-                  <div className="empty-state">
-                    <i className="fas fa-book-open"></i>
-                    <h3>No recipes found</h3>
-                    <p>{searchQuery ? 'Try a different search term' : 'Be the first to add a recipe!'}</p>
-                    {user && (
-                        <Link to="/recipes/add" className="empty-state-button">
-                          Add New Recipe
-                        </Link>
-                    )}
-                  </div>
-              )
           )}
-        </div>
 
-        {loading && (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-              <p>Loading recipes...</p>
-            </div>
-        )}
-
-        {!loading && hasMore && recipes.length > 0 && (
-            <div className="load-more-container">
-              <button onClick={loadMore} className="load-more-button">
-                Load More Recipes
-                <i className="fas fa-chevron-down"></i>
-              </button>
-            </div>
-        )}
-      </div>
-      /*<div className="recipe-list-container">
-        <div className="recipe-list-header">
-          <h1>All Recipes</h1>
-          <form onSubmit={handleSearch} className="search-form">
-            <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search recipes..."
-                className="search-input"
-            />
-            <button type="submit" className="search-button">
-              Search
-            </button>
-          </form>
-        </div>
-
-        {error && <div className="error-message">{error}</div>}
-
-        <div className="recipe-grid">
-          {Array.isArray(recipes) && recipes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.isArray(recipes) && recipes.length > 0 ? (
               recipes.map((recipe, index) => (
-                  <Link
-                      to={`/recipes/${recipe?.id || index}`}
-                      key={recipe?.id || index}
-                      className="recipe-card"
-                  >
-                    <div className="recipe-image">
-                      {recipe?.imageUrl ? (
-                          <img
-                              src={`/api/uploads/${recipe.imageUrl}`}
-                              alt={recipe?.title || 'Recipe'}
-                          />
-                      ) : (
-                          <div className="placeholder-image">No Image</div>
-                      )}
+                <div key={recipe?.id || index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                  <div className="relative">
+                    {recipe?.imageUrl ? (
+                      <img
+                        src={`/api/uploads/${recipe.imageUrl}`}
+                        alt={recipe?.title || 'Recipe'}
+                        className="w-full h-48 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <i className="fas fa-utensils text-4xl text-gray-400"></i>
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm">
+                      {recipe?.category || 'General'}
                     </div>
-                    <div className="recipe-info">
-                      <h3>{recipe?.title || 'Untitled Recipe'}</h3>
-                      <p className="recipe-description">{recipe?.description || 'No description available'}</p>
-                      <div className="recipe-meta">
-                        <span>Prep: {recipe?.prepTime || 0}min</span>
-                        <span>Cook: {recipe?.cookTime || 0}min</span>
-                        <span>Servings: {recipe?.servings || 0}</span>
+
+                    {user && recipe?.author && (user.id === recipe.author.id || user.role === "ADMIN") && (
+                      <div className="absolute top-4 left-4 flex gap-2">
+                        <Link
+                          to={`/recipes/edit/${recipe.id}`}
+                          className="inline-flex items-center justify-center w-9 h-9 bg-white/90 backdrop-blur-sm text-emerald-600 rounded-full hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                          title="Edit Recipe"
+                        >
+                          <i className="fas fa-edit"></i>
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDelete(recipe.id);
+                          }}
+                          className="inline-flex items-center justify-center w-9 h-9 bg-white/90 backdrop-blur-sm text-rose-600 rounded-full hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+                          title="Delete Recipe"
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <Link to={`/recipes/${recipe?.id || index}`} className="block">
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        {recipe?.title || 'Untitled Recipe'}
+                      </h3>
+                      <p className="text-gray-600 mb-4 line-clamp-2">
+                        {recipe?.description || 'No description available'}
+                      </p>
+
+                      <div className="flex justify-between text-sm text-gray-500 mb-4">
+                        <div className="flex items-center">
+                          <i className="fas fa-clock mr-2"></i>
+                          <span>{recipe?.prepTime + recipe?.cookTime || 0} min</span>
+                        </div>
+                        <div className="flex items-center">
+                          <i className="fas fa-user-friends mr-2"></i>
+                          <span>{recipe?.servings || 0} servings</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="flex items-center text-gray-600">
+                          <i className="fas fa-fire-alt mr-2 text-orange-500"></i>
+                          {recipe.calories || 0} kcal
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <i className="fas fa-drumstick-bite mr-2 text-red-500"></i>
+                          {recipe.protein || 0}g protein
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <i className="fas fa-bread-slice mr-2 text-yellow-500"></i>
+                          {recipe.carbs || 0}g carbs
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <i className="fas fa-cheese mr-2 text-yellow-600"></i>
+                          {recipe.fat || 0}g fat
+                        </div>
                       </div>
                     </div>
                   </Link>
+                </div>
               ))
-          ) : (
-              !loading && (
-                  <div className="no-recipes">
-                    No recipes found. {searchQuery && 'Try a different search term.'}
-                  </div>
-              )
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <div className="text-gray-500">
+                  <i className="fas fa-utensils text-4xl mb-4"></i>
+                  <p className="text-lg">No recipes found</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {hasMore && !loading && (
+            <div className="text-center mt-8">
+              <button
+                onClick={loadMore}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Load More
+              </button>
+            </div>
+          )}
+
+          {loading && (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-green-600 border-t-transparent"></div>
+            </div>
           )}
         </div>
-
-        {loading && <div className="loading">Loading...</div>}
-
-        {!loading && hasMore && recipes.length > 0 && (
-            <button onClick={loadMore} className="load-more-button">
-              Load More
-            </button>
-        )}
       </div>*/
   );
-}
+};
 
 export default RecipeList;

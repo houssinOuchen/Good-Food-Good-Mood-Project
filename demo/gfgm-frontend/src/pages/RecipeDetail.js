@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { recipeService } from '../services/recipeService';
 import { useAuth } from '../context/AuthContext';
-import './RecipeDetail.css';
 
 const RecipeDetail = () => {
   const { id } = useParams();
@@ -21,8 +20,6 @@ const RecipeDetail = () => {
       setLoading(true);
       const data = await recipeService.getRecipeById(id);
       setRecipe(data);
-      console.log("Recipe data:", data);
-      console.log("id:", id);
     } catch (err) {
       setError('Failed to fetch recipe');
       console.error(err);
@@ -46,311 +43,311 @@ const RecipeDetail = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-600 border-t-transparent"></div>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Loading Recipe</h3>
+            <p className="text-gray-600">Preparing something delicious for you...</p>
+          </div>
+        </div>
+    );
   }
 
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="max-w-md w-full mx-4">
+            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
+                <i className="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Oops! Something went wrong</h3>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <Link
+                  to="/recipes"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 font-medium shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                <i className="fas fa-arrow-left mr-2"></i>
+                Back to Recipes
+              </Link>
+            </div>
+          </div>
+        </div>
+    );
   }
 
   if (!recipe) {
-    return <div className="not-found">Recipe not found</div>;
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="max-w-md w-full mx-4">
+            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
+                <i className="fas fa-utensils text-3xl text-gray-400"></i>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Recipe Not Found</h3>
+              <p className="text-gray-600 mb-8">
+                The recipe you're looking for doesn't exist or has been removed from our kitchen.
+              </p>
+              <Link
+                  to="/recipes"
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                <i className="fas fa-arrow-left mr-2"></i>
+                Browse All Recipes
+              </Link>
+            </div>
+          </div>
+        </div>
+    );
   }
 
   const isOwner = user && recipe.author && user.id === recipe.author.id;
-
   const authorName = recipe.author?.username || 'Unknown User';
-  console.log("username:", recipe.user?.username);
+
   return (
-      <div className="recipe-detail-page">
-        {loading && (
-            <div className="rdp-loading-overlay">
-              <div className="rdp-spinner"></div>
-              <p>Loading recipe...</p>
-            </div>
-        )}
-
-        {error && (
-            <div className="rdp-error-overlay">
-              <i className="fas fa-exclamation-triangle"></i>
-              <p>{error}</p>
-            </div>
-        )}
-
-        {!recipe && !loading && (
-            <div className="rdp-not-found">
-              <i className="fas fa-utensils"></i>
-              <h3>Recipe Not Found</h3>
-              <p>The recipe you're looking for doesn't exist or has been removed.</p>
-              <Link to="/recipes" className="rdp-back-button">
-                <i className="fas fa-arrow-left"></i> Browse Recipes
-              </Link>
-            </div>
-        )}
-
-        {recipe && (
-            <>
-              <div className="rdp-hero">
-                <div className="rdp-hero-image">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        {/* Hero Section */}
+        <div className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Image Section */}
+              <div className="relative">
+                <div className="aspect-w-16 aspect-h-12 rounded-2xl overflow-hidden shadow-xl">
                   {recipe.imageUrl ? (
-                      <img src={`/api/uploads/${recipe.imageUrl}`} alt={recipe.title}/>
+                      <img
+                          src={`/api/uploads/${recipe.imageUrl}`}
+                          alt={recipe.title}
+                          className="w-full h-96 object-cover"
+                      />
                   ) : (
-                      <div className="rdp-placeholder-image">
-                        <i className="fas fa-utensils"></i>
+                      <div
+                          className="w-full h-96 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        <i className="fas fa-utensils text-6xl text-gray-400"></i>
                       </div>
                   )}
                 </div>
+              </div>
 
-                <div className="rdp-hero-content">
-                  <div className="rdp-header">
-                    <div className="rdp-header-text">
-                      <div className="rdp-categories">
-                        <span className="rdp-category-badge">{recipe.category || 'General'}</span>
-                        {recipe.isVegetarian && <span className="rdp-category-badge rdp-veg">Vegetarian</span>}
-                        {recipe.isVegan && <span className="rdp-category-badge rdp-vegan">Vegan</span>}
-                      </div>
-                      <h1>{recipe.title || 'Untitled Recipe'}</h1>
-                      <p className="rdp-description">{recipe.description || 'No description available'}</p>
-                    </div>
-
-                    {isOwner && (
-                        <div className="rdp-actions">
-                          <Link to={`/recipes/edit/${recipe.id}`} className="rdp-action-button rdp-edit">
-                            <i className="fas fa-edit"></i> Edit Recipe
-                          </Link>
-                          <button onClick={handleDelete} className="rdp-action-button rdp-delete">
-                            <i className="fas fa-trash"></i> Delete Recipe
-                          </button>
-                        </div>
+              {/* Content Section */}
+              <div className="flex flex-col justify-between">
+                <div>
+                  <div className="flex flex-wrap gap-3 mb-6">
+                  <span
+                      className="inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-semibold">
+                    {recipe.category || "General"}
+                  </span>
+                    {recipe.isVegetarian && (
+                        <span
+                            className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                      🌱 Vegetarian
+                    </span>
+                    )}
+                    {recipe.isVegan && (
+                        <span
+                            className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                      🌿 Vegan
+                    </span>
                     )}
                   </div>
 
-                  <div className="rdp-meta">
-                    <div className="rdp-meta-item">
-                      <i className="fas fa-clock"></i>
-                      <div>
-                        <span className="rdp-meta-label">Prep Time</span>
-                        <span className="rdp-meta-value">{recipe.prepTime || 0} min</span>
+                  <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                    {recipe.title || "Untitled Recipe"}
+                  </h1>
+                  <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                    {recipe.description || "No description available"}
+                  </p>
+
+                  {isOwner && (
+                      <div className="flex flex-wrap gap-4 mb-8">
+                        <Link
+                            to={`/recipes/edit/${recipe.id}`}
+                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                        >
+                          <i className="fas fa-edit mr-2"></i>
+                          Edit Recipe
+                        </Link>
+                        <button
+                            onClick={handleDelete}
+                            className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                        >
+                          <i className="fas fa-trash mr-2"></i>
+                          Delete Recipe
+                        </button>
                       </div>
-                    </div>
-
-                    <div className="rdp-meta-item">
-                      <i className="fas fa-fire"></i>
-                      <div>
-                        <span className="rdp-meta-label">Cook Time</span>
-                        <span className="rdp-meta-value">{recipe.cookTime || 0} min</span>
-                      </div>
-                    </div>
-
-                    <div className="rdp-meta-item">
-                      <i className="fas fa-users"></i>
-                      <div>
-                        <span className="rdp-meta-label">Servings</span>
-                        <span className="rdp-meta-value">{recipe.servings || 0}</span>
-                      </div>
-                    </div>
-
-                    <div className="rdp-meta-item">
-                      <i className="fas fa-utensil-spoon"></i>
-                      <div>
-                        <span className="rdp-meta-label">Difficulty</span>
-                        <span className="rdp-meta-value">{recipe.difficulty || 'Easy'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rdp-body">
-                <div className="rdp-ingredients">
-                  <h2>
-                    <i className="fas fa-shopping-basket"></i>
-                    Ingredients
-                  </h2>
-
-                  {recipe.ingredients && recipe.ingredients.length > 0 ? (
-                      <ul className="rdp-ingredients-list">
-                        {recipe.ingredients.map((ingredient, index) => (
-                            <li key={index} className="rdp-ingredient">
-                              <input type="checkbox" id={`rdp-ingredient-${index}`}/>
-                              <label htmlFor={`rdp-ingredient-${index}`}>
-                                <span className="rdp-ingredient-amount">{ingredient.amount || ''}</span>
-                                <span className="rdp-ingredient-unit">{ingredient.unit || ''}</span>
-                                <span className="rdp-ingredient-name">{ingredient.name || ''}</span>
-                              </label>
-                            </li>
-                        ))}
-                      </ul>
-                  ) : (
-                      <p className="rdp-empty">No ingredients listed</p>
                   )}
                 </div>
 
-                <div className="rdp-instructions">
-                  <h2>
-                    <i className="fas fa-list-ol"></i>
-                    Instructions
-                  </h2>
-
-                  {recipe.instructions ? (
-                      <div className="rdp-steps">
-                        {recipe.instructions.split('\n').map((step, index) => (
-                            <div key={index} className="rdp-step">
-                              <div className="rdp-step-number">{index + 1}</div>
-                              <div className="rdp-step-content">{step}</div>
-                            </div>
-                        ))}
-                      </div>
-                  ) : (
-                      <p className="rdp-empty">No instructions available</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="rdp-footer">
-                <div className="rdp-author">
-                  <div className="rdp-author-avatar">
-                    {authorName ? authorName.charAt(0).toUpperCase() : 'U'}
+                {/* Meta Information */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
+                    <div className="flex items-center text-blue-600 mb-2">
+                      <i className="fas fa-clock mr-2"></i>
+                      <span className="text-sm font-semibold">Prep Time</span>
+                    </div>
+                    <p className="text-2xl font-bold text-blue-700">{recipe.prepTime || 0} min</p>
                   </div>
-                  <div className="rdp-author-info">
-                    <span className="rdp-posted-by">Recipe by</span>
-                    <span className="rdp-author-name">{authorName || 'Unknown User'}</span>
-                    {recipe.createdAt && (
-                        <span className="rdp-post-date">
-                Posted on {new Date(recipe.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-              </span>
-                    )}
+
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl">
+                    <div className="flex items-center text-orange-600 mb-2">
+                      <i className="fas fa-fire mr-2"></i>
+                      <span className="text-sm font-semibold">Cook Time</span>
+                    </div>
+                    <p className="text-2xl font-bold text-orange-700">{recipe.cookTime || 0} min</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl">
+                    <div className="flex items-center text-purple-600 mb-2">
+                      <i className="fas fa-users mr-2"></i>
+                      <span className="text-sm font-semibold">Servings</span>
+                    </div>
+                    <p className="text-2xl font-bold text-purple-700">{recipe.servings || 0}</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-xl">
+                    <div className="flex items-center text-emerald-600 mb-2">
+                      <i className="fas fa-utensil-spoon mr-2"></i>
+                      <span className="text-sm font-semibold">Difficulty</span>
+                    </div>
+                    <p className="text-2xl font-bold text-emerald-700">{recipe.difficulty || "Easy"}</p>
                   </div>
                 </div>
-
-                <div className="rdp-nutrition">
-                  <h3>
-                    <i className="fas fa-chart-pie"></i>
-                    Nutrition Facts
-                  </h3>
-                  {recipe.nutrition ? (
-                      <div className="rdp-nutrition-grid">
-                        <div className="rdp-nutrition-item">
-                          <span className="rdp-nutrition-value">{recipe.nutrition.calories || '--'}</span>
-                          <span className="rdp-nutrition-label">Calories</span>
-                        </div>
-                        <div className="rdp-nutrition-item">
-                          <span className="rdp-nutrition-value">{recipe.nutrition.protein || '--'}g</span>
-                          <span className="rdp-nutrition-label">Protein</span>
-                        </div>
-                        <div className="rdp-nutrition-item">
-                          <span className="rdp-nutrition-value">{recipe.nutrition.carbs || '--'}g</span>
-                          <span className="rdp-nutrition-label">Carbs</span>
-                        </div>
-                        <div className="rdp-nutrition-item">
-                          <span className="rdp-nutrition-value">{recipe.nutrition.fat || '--'}g</span>
-                          <span className="rdp-nutrition-label">Fat</span>
-                        </div>
-                      </div>
-                  ) : (
-                      <p className="rdp-empty">No nutrition information available</p>
-                  )}
-                </div>
               </div>
-            </>
-        )}
-      </div>
-      /*<div className="recipe-detail-container">
-        <div className="recipe-detail-header">
-          <h1>{recipe.title || 'Untitled Recipe'}</h1>
-          {isOwner && (
-              <div className="recipe-actions">
-                <Link to={`/recipes/edit/${recipe.id}`} className="edit-button">
-                  Edit Recipe
-                </Link>
-                <button onClick={handleDelete} className="delete-button">
-                  Delete Recipe
-                </button>
-              </div>
-          )}
+            </div>
+          </div>
         </div>
 
-        <div className="recipe-content">
-          <div className="recipe-main">
-            <div className="recipe-image">
-              {recipe.imageUrl ? (
-                  <img src={`/api/uploads/${recipe.imageUrl}`} alt={recipe.title} />
-              ) : (
-                  <div className="placeholder-image">No Image</div>
-              )}
-            </div>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Ingredients Section */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                    <i className="fas fa-shopping-basket text-emerald-600"></i>
+                  </div>
+                  Ingredients
+                </h2>
 
-            <div className="recipe-meta-info">
-              <div className="meta-item">
-                <span className="meta-label">Preparation Time:</span>
-                <span>{recipe.prepTime || 0} minutes</span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">Cooking Time:</span>
-                <span>{recipe.cookTime || 0} minutes</span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">Servings:</span>
-                <span>{recipe.servings || 0}</span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">Category:</span>
-                <span>{recipe.category || 'Uncategorized'}</span>
-              </div>
-            </div>
-
-            <div className="recipe-description">
-              <h2>Description</h2>
-              <p>{recipe.description || 'No description available'}</p>
-            </div>
-
-            <div className="recipe-ingredients">
-              <h2>Ingredients</h2>
-              {recipe.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 ? (
-                  <ul>
-                    {recipe.ingredients.map((ingredient, index) => (
-                        <li key={index}>
-                          {ingredient.amount || ''} {ingredient.unit || ''} {ingredient.name || ''}
-                        </li>
-                    ))}
-                  </ul>
-              ) : (
-                  <p>No ingredients listed</p>
-              )}
-            </div>
-
-            <div className="recipe-instructions">
-              <h2>Instructions</h2>
-              <div className="instructions-text">
-                {recipe.instructions ? (
-                    recipe.instructions.split('\n').map((step, index) => (
-                        <p key={index}>{step}</p>
-                    ))
+                {recipe.ingredients && recipe.ingredients.length > 0 ? (
+                    <ul className="space-y-4">
+                      {recipe.ingredients.map((ingredient, index) => (
+                          <li key={index} className="flex items-start group">
+                            <input
+                                type="checkbox"
+                                id={`ingredient-${index}`}
+                                className="mt-1.5 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded transition-colors duration-200"
+                            />
+                            <label
+                                htmlFor={`ingredient-${index}`}
+                                className="ml-4 text-gray-700 cursor-pointer group-hover:text-gray-900 transition-colors duration-200"
+                            >
+                        <span className="font-semibold text-emerald-600">
+                          {ingredient.amount || ""} {ingredient.unit || ""}
+                        </span>
+                              <span className="ml-2">{ingredient.name || ""}</span>
+                            </label>
+                          </li>
+                      ))}
+                    </ul>
                 ) : (
-                    <p>No instructions available</p>
+                    <p className="text-gray-500 text-center py-8">No ingredients listed</p>
+                )}
+              </div>
+            </div>
+
+            {/* Instructions Section */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                    <i className="fas fa-list-ol text-blue-600"></i>
+                  </div>
+                  Instructions
+                </h2>
+
+                {recipe.instructions ? (
+                    <div className="space-y-8">
+                      {recipe.instructions.split("\n").map((step, index) => (
+                          <div key={index} className="flex group">
+                            <div
+                                className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                              {index + 1}
+                            </div>
+                            <div
+                                className="ml-6 text-gray-700 text-lg leading-relaxed group-hover:text-gray-900 transition-colors duration-200">
+                              {step}
+                            </div>
+                          </div>
+                      ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-500 text-center py-8">No instructions available</p>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="recipe-sidebar">
-            <div className="recipe-author">
-              <h3>Recipe by</h3>
-              {console.log("user : ", user)}
-              <p>{authorName || 'Unknown User'}</p>
-              {recipe.createdAt && (
-                  <p className="recipe-date">
-                    Posted on {new Date(recipe.createdAt).toLocaleDateString()}
-                  </p>
-              )}
+          {/* Author and Nutrition Section */}
+          <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Author Info */}
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Recipe Creator</h3>
+              <div className="flex items-center">
+                <div
+                    className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                  {authorName.charAt(0).toUpperCase()}
+                </div>
+                <div className="ml-6">
+                  <p className="text-sm text-gray-500 font-medium">Created by</p>
+                  <p className="text-2xl font-bold text-gray-900">{authorName}</p>
+                  {recipe.createdAt && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Posted on{" "}
+                        {new Date(recipe.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Nutrition Facts */}
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                  <i className="fas fa-chart-pie text-orange-600"></i>
+                </div>
+                Nutrition Facts
+              </h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center p-4 bg-orange-50 rounded-xl">
+                  <p className="text-3xl font-bold text-orange-600">{recipe.calories || "--"}</p>
+                  <p className="text-sm font-semibold text-gray-600 mt-1">Calories</p>
+                </div>
+                <div className="text-center p-4 bg-red-50 rounded-xl">
+                  <p className="text-3xl font-bold text-red-600">{recipe.protein || "--"}g</p>
+                  <p className="text-sm font-semibold text-gray-600 mt-1">Protein</p>
+                </div>
+                <div className="text-center p-4 bg-yellow-50 rounded-xl">
+                  <p className="text-3xl font-bold text-yellow-600">{recipe.carbs || "--"}g</p>
+                  <p className="text-sm font-semibold text-gray-600 mt-1">Carbs</p>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-xl">
+                  <p className="text-3xl font-bold text-purple-600">{recipe.fat || "--"}g</p>
+                  <p className="text-sm font-semibold text-gray-600 mt-1">Fat</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>*/
+      </div>
   );
 };
 

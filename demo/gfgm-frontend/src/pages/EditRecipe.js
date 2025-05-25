@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { recipeService } from '../services/recipeService';
 import RecipeForm from '../Components/RecipeForm';
-import '../Components/RecipeForm.css';
 
 const EditRecipe = () => {
   const { id } = useParams();
@@ -12,7 +11,7 @@ const EditRecipe = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const storedAuth = localStorage.getItem('auth');
+    const storedAuth = localStorage.getItem('user');
     if(!storedAuth){
       navigate("/login");
     }

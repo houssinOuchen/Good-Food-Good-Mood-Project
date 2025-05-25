@@ -121,6 +121,14 @@ public class RecipeService {
         recipe.setServings(request.getServings());
         recipe.setCategory(request.getCategory());
         recipe.setPublished(request.isPublished());
+        
+        // Nutrition information
+        recipe.setCalories(request.getCalories());
+        recipe.setProtein(request.getProtein());
+        recipe.setCarbs(request.getCarbs());
+        recipe.setFat(request.getFat());
+        recipe.setFiber(request.getFiber());
+        recipe.setSugar(request.getSugar());
     }
 
     private void saveIngredients(Recipe recipe, List<IngredientRequest> ingredientRequests) {
@@ -169,5 +177,30 @@ public class RecipeService {
         if (!recipe.getUser().getId().equals(currentUser.getId())) {
             throw new RuntimeException("You don't have permission to modify this recipe");
         }
+    }
+
+    public long getTotalRecipes() {
+        return recipeRepository.count();
+    }
+
+    public long getTotalAiGeneratedRecipes() {
+        return recipeRepository.countByGeneratedByAiTrue();
+    }
+
+    public Page<Recipe> getAiGeneratedRecipes(Pageable pageable) {
+        return recipeRepository.findAllByGeneratedByAiTrue(pageable);
+    }
+
+    @Transactional
+    public Recipe saveAiGeneratedRecipe(RecipeRequest request) {
+        User currentUser = authService.getCurrentUser();
+        Recipe recipe = new Recipe();
+        updateRecipeFromRequest(recipe, request);
+        recipe.setUser(currentUser);
+        recipe.setGeneratedByAi(true);
+
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        saveIngredients(savedRecipe, request.getIngredients());
+        return savedRecipe;
     }
 }

@@ -40,5 +40,13 @@ public class RecipeRequest {
     private List<IngredientRequest> ingredients;
     
     private boolean isPublished = true;
+
+    // Nutrition information
+    private Double calories;
+    private Double protein;
+    private Double carbs;
+    private Double fat;
+    private Double fiber;
+    private Double sugar;
 }
 

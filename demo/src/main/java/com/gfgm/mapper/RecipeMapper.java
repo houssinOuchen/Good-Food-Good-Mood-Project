@@ -31,6 +31,15 @@ public class RecipeMapper {
         dto.setUpdatedAt(recipe.getUpdatedAt());
         dto.setCategory(recipe.getCategory() != null ? recipe.getCategory().name() : null);
         dto.setPublished(recipe.isPublished());
+        dto.setGeneratedByAi(recipe.isGeneratedByAi());
+
+        // Nutrition information
+        dto.setCalories(recipe.getCalories());
+        dto.setProtein(recipe.getProtein());
+        dto.setCarbs(recipe.getCarbs());
+        dto.setFat(recipe.getFat());
+        dto.setFiber(recipe.getFiber());
+        dto.setSugar(recipe.getSugar());
 
         // Convert ingredients
         if (recipe.getIngredients() != null) {
@@ -45,9 +54,10 @@ public class RecipeMapper {
             UserSummaryDTO userDTO = new UserSummaryDTO();
             userDTO.setId(recipe.getUser().getId());
             userDTO.setUsername(recipe.getUser().getUsername());
-            userDTO.setFirstName(recipe.getUser().getFirstName());
-            userDTO.setLastName(recipe.getUser().getLastName());
+            userDTO.setEmail(recipe.getUser().getEmail());
             userDTO.setProfilePicture(recipe.getUser().getProfilePicture());
+            userDTO.setRole(recipe.getUser().getRole());
+            userDTO.setCreatedAt(recipe.getUser().getCreatedAt());
             dto.setAuthor(userDTO);
         }
 

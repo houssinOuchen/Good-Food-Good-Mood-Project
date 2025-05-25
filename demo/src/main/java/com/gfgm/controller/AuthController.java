@@ -1,6 +1,7 @@
 package com.gfgm.controller;
 
 import com.gfgm.dto.AuthRequest;
+import com.gfgm.dto.AuthResponse;
 import com.gfgm.dto.RegisterRequest;
 import com.gfgm.model.User;
 import com.gfgm.service.AuthService;
@@ -29,11 +30,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         Authentication authentication = authService.authenticate(request);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Login successful");
-        response.put("username", authentication.getName());
+        User user = authService.getCurrentUser();
+        AuthResponse response = AuthResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .profilePicture(user.getProfilePicture())
+                .token(authService.generateToken(user))
+                .build();
         return ResponseEntity.ok(response);
     }
 

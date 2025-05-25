@@ -5,6 +5,7 @@ import com.gfgm.dto.RegisterRequest;
 import com.gfgm.model.Role;
 import com.gfgm.model.User;
 import com.gfgm.repository.UserRepository;
+import com.gfgm.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Transactional
     public User register(RegisterRequest request) {
@@ -53,5 +55,15 @@ public class AuthService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Current user not found"));
+    }
+
+    public String generateToken(User user) {
+        return jwtService.generateToken(
+            org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .authorities("ROLE_" + user.getRole().name())
+                .build()
+        );
     }
 } 

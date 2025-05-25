@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import './config/axios'; // Import axios config
 import Navbar from './Components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -11,7 +12,8 @@ import AddRecipe from './pages/AddRecipe';
 import EditRecipe from './pages/EditRecipe';
 import MyRecipes from './pages/MyRecipes';
 import PrivateRoute from './Components/PrivateRoute';
-import './App.css';
+import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 
 function App() {
     return (
@@ -21,6 +23,12 @@ function App() {
                     <Navbar />
                     <main className="main-content">
                         <Routes>
+                            <Route path="/Profil" element={<Profile />} />
+                            <Route path="/dashboard" element={
+                                <PrivateRoute adminOnly={true}>
+                                    <AdminDashboard />
+                                </PrivateRoute>
+                            } />
                             <Route path="/" element={<Home />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/register" element={<Register />} />

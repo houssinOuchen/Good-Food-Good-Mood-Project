@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,6 +39,9 @@ public class User {
     private String firstName;
     private String lastName;
     private String profilePicture;
+    
+    @Column(columnDefinition = "TEXT")
+    private String bio;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Recipe> recipes = new ArrayList<>();
@@ -50,4 +54,16 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
+
+    @Transient
+    @JsonIgnore
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 } 

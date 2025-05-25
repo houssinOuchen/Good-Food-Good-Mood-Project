@@ -16,6 +16,17 @@ public class RecipeDTO {
     private Integer prepTime;
     private Integer cookTime;
     private Integer servings;
+    
+    // Nutrition information
+    private Double calories;
+    private Double protein;
+    private Double carbs;
+    private Double fat;
+    private Double fiber;
+    private Double sugar;
+    
+    private boolean generatedByAi;
+    
     private List<IngredientDTO> ingredients = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

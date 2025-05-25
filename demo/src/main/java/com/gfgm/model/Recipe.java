@@ -39,6 +39,17 @@ public class Recipe {
     private Integer cookTime;
     private Integer servings;
 
+    // Nutrition information
+    private Double calories;
+    private Double protein;
+    private Double carbs;
+    private Double fat;
+    private Double fiber;
+    private Double sugar;
+
+    // AI generation flag
+    private boolean generatedByAi = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)

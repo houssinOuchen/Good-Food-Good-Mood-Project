@@ -21,4 +21,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     Page<Recipe> searchRecipes(@Param("query") String query, Pageable pageable);
     
     List<Recipe> findTop5ByUserOrderByCreatedAtDesc(User user);
+    
+    long countByGeneratedByAiTrue();
+    
+    Page<Recipe> findAllByGeneratedByAiTrue(Pageable pageable);
 } 
